@@ -1,0 +1,90 @@
+---
+interface Drill {
+    name: string;
+    focus: string;
+    reps?: string;
+}
+
+interface Props {
+    title?: string;
+    intro?: string;
+    drills: Drill[];
+}
+
+const {
+    title = "Suggested drills",
+    intro = "Use these drills to practice what you just learned.",
+    drills,
+} = Astro.props as Props;
+---
+
+<section class="suggested-drills">
+    <h2 class="suggested-drills__title">{title}</h2>
+    {intro && <p class="suggested-drills__intro">{intro}</p>}
+
+    <ol class="suggested-drills__list">
+        {
+            drills.map((drill) => (
+                <li class="suggested-drills__item">
+                    <h3 class="suggested-drills__name">{drill.name}</h3>
+                    <p class="suggested-drills__focus">{drill.focus}</p>
+                    {drill.reps && (
+                        <p class="suggested-drills__reps">
+                            <strong>Reps:</strong> {drill.reps}
+                        </p>
+                    )}
+                </li>
+            ))
+        }
+    </ol>
+</section>
+
+<style>
+    .suggested-drills {
+        margin: 2rem 0;
+        padding: 1rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        background: #f7fbff;
+    }
+
+    .suggested-drills__title {
+        margin: 0 0 0.4rem;
+        font-size: 1.2rem;
+    }
+
+    .suggested-drills__intro {
+        margin: 0 0 0.75rem;
+        font-size: 0.95rem;
+        color: rgb(90, 90, 90);
+    }
+
+    .suggested-drills__list {
+        margin: 0;
+        padding-left: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .suggested-drills__item {
+        margin-left: 0.1rem;
+    }
+
+    .suggested-drills__name {
+        margin: 0 0 0.15rem;
+        font-size: 1rem;
+    }
+
+    .suggested-drills__focus {
+        margin: 0;
+        font-size: 0.9rem;
+        color: rgb(80, 80, 80);
+    }
+
+    .suggested-drills__reps {
+        margin: 0.2rem 0 0;
+        font-size: 0.9rem;
+        color: rgb(70, 70, 70);
+    }
+</style>

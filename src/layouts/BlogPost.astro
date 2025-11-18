@@ -1,34 +1,80 @@
 ---
-import { Image } from 'astro:assets';
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Header from "../components/Header.astro";
+import SuggestedDrills from "../components/SuggestedDrills.astro";
 
-type Props = CollectionEntry<'blog'>['data'];
+type BlogEntry = CollectionEntry<"blog">["data"];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+type Drill = {
+	name: string;
+	focus: string;
+	reps?: string;
+};
+
+type Props = BlogEntry & {
+	category?: string;
+	tags?: string[];
+	heroImageAlt?: string;
+	drills?: Drill[];
+};
+
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	category,
+	tags = [],
+	heroImageAlt,
+	drills = [],
+} = Astro.props as Props;
 ---
 
 <html lang="en">
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
+			body {
+				margin: 0;
+				font-family:
+					system-ui,
+					-apple-system,
+					BlinkMacSystemFont,
+					"Segoe UI",
+					sans-serif;
+				background: rgb(var(--gray-lightest, 250, 250, 250));
+				color: rgb(var(--gray-dark, 33, 33, 33));
+			}
+
 			main {
 				width: calc(100% - 2em);
 				max-width: 100%;
 				margin: 0;
 			}
+
+			article {
+				padding-bottom: 3rem;
+			}
+
 			.hero-image {
 				width: 100%;
 			}
+
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
 				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				box-shadow: var(--box-shadow, 0 10px 30px rgba(0, 0, 0, 0.12));
+				max-width: 1020px;
+				width: 100%;
+				height: auto;
 			}
+
 			.prose {
 				width: 720px;
 				max-width: calc(100% - 2em);
@@ -36,21 +82,67 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				padding: 1em;
 				color: rgb(var(--gray-dark));
 			}
+
 			.title {
 				margin-bottom: 1em;
-				padding: 1em 0;
+				padding: 1.5em 0 1em;
 				text-align: center;
-				line-height: 1;
+				line-height: 1.2;
 			}
+
 			.title h1 {
-				margin: 0 0 0.5em 0;
+				margin: 0 0 0.75em 0;
+				font-size: clamp(1.9rem, 3vw, 2.4rem);
 			}
+
+			.meta-row {
+				display: flex;
+				flex-direction: column;
+				gap: 0.35rem;
+				align-items: center;
+				margin-bottom: 0.5rem;
+			}
+
 			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				margin: 0;
+				color: rgb(var(--gray, 120, 120, 120));
+				font-size: 0.9rem;
 			}
+
 			.last-updated-on {
 				font-style: italic;
+			}
+
+			.category {
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.12em;
+				font-size: 0.8rem;
+				color: rgb(var(--gray, 120, 120, 120));
+			}
+
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				justify-content: center;
+				margin-top: 0.35rem;
+				margin-bottom: 0.5rem;
+			}
+
+			.tag-pill {
+				padding: 0.15rem 0.6rem;
+				border-radius: 999px;
+				border: 1px solid rgba(var(--gray, 140, 140, 140), 0.4);
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+			}
+
+			hr {
+				border: none;
+				border-top: 1px solid rgba(var(--gray, 160, 160, 160), 0.4);
+				margin-top: 1.25rem;
 			}
 		</style>
 	</head>
@@ -60,24 +152,64 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 		<main>
 			<article>
 				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+					{
+						heroImage && (
+							<Image
+								width={1020}
+								height={510}
+								src={heroImage}
+								alt={
+									heroImageAlt ??
+									`Basketball article illustration for: ${title}`
+								}
+							/>
+						)
+					}
 				</div>
+
 				<div class="prose">
 					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
+						<div class="meta-row">
+							{category && <div class="category">{category}</div>}
+
+							<div class="date">
+								<FormattedDate date={pubDate} />
+								{
+									updatedDate && (
+										<div class="last-updated-on">
+											Last updated on{" "}
+											<FormattedDate date={updatedDate} />
+										</div>
+									)
+								}
+							</div>
+
 							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+								Array.isArray(tags) && tags.length > 0 && (
+									<div class="tags">
+										{tags.map((tag) => (
+											<span class="tag-pill">{tag}</span>
+										))}
 									</div>
 								)
 							}
 						</div>
+
 						<h1>{title}</h1>
 						<hr />
 					</div>
+
 					<slot />
+
+					{
+						Array.isArray(drills) && drills.length > 0 && (
+							<SuggestedDrills
+								title="Suggested drills"
+								intro="Try these drills to practice what you just learned."
+								drills={drills}
+							/>
+						)
+					}
 				</div>
 			</article>
 		</main>
